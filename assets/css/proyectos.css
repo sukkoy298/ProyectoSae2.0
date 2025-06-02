@@ -1,0 +1,29 @@
+.requerimientos {
+  max-height: 10rem;
+  overflow-x: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
+  background-color: rgb(240, 240, 240) !important;
+  border-radius: 0.4rem;
+  padding: 0.4rem;
+}
+
+.requerimientos::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.requerimientos::-webkit-scrollbar-thumb {
+  background-color: transparent; /* Inicialmente invisible */
+  border-radius: 10px; /* Más redondeado */
+  transition: background-color 0.3s ease; /* Transición suave */
+}
+
+.requerimientos:hover {
+  scrollbar-color: #888 #f1f1f1; /* Color visible al pasar el cursor */
+}
+
+.requerimientos:hover::-webkit-scrollbar-thumb {
+  background-color: #888; /* Color visible al pasar el cursor */
+}

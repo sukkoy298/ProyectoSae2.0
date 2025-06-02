@@ -1,0 +1,14 @@
+.bg-imagen {
+  background-image: url('../img/1_1.jpg');
+    color: white;
+}
+h1 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.crecer:hover {
+  background-color: #f0f0f0;
+  color: black;
+  transform: scale(1.05);
+  transition: all 0.3s ease-in-out;
+}
