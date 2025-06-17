@@ -6,17 +6,27 @@ $mensaje = "";
 // Obtener id del desarrollador por GET
 $id_desarrollador = isset($_GET['id_desarrollador']) ? intval($_GET['id_desarrollador']) : null;
 
-// Registrar reporte/cambio
+// Obtener fases para el select
+$fases = [];
+$resFases = $conn->query("SELECT Id_fase, Nombre FROM fase");
+if ($resFases && $resFases->num_rows > 0) {
+    while($row = $resFases->fetch_assoc()) {
+        $fases[] = $row;
+    }
+}
+
+// Registrar reporte/cambio y asignación
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar_reporte'])) {
     $id_requerimiento = intval($_POST['id_requerimiento']);
     $cambio_realizado = $_POST['cambio_realizado'];
     $fecha_cambio = date('Y-m-d');
+    $id_fase_nueva = intval($_POST['id_fase']);
 
     // Obtener id_fase actual del requerimiento
-    $id_fase = 1;
+    $id_fase_actual = 1;
     $resFase = $conn->query("SELECT Id_fase FROM requerimiento WHERE Id_requerimiento = $id_requerimiento");
     if ($resFase && $rowFase = $resFase->fetch_assoc()) {
-        $id_fase = intval($rowFase['Id_fase']);
+        $id_fase_actual = intval($rowFase['Id_fase']);
     }
 
     // Verificar si ya existe una asignación activa para este requerimiento
@@ -24,6 +34,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar_reporte'])) 
     if ($resAsignacion && $resAsignacion->num_rows > 0) {
         $mensaje = "<div class='alert alert-danger'>Este requerimiento ya tiene una asignación activa. No se puede volver a asignar hasta que se desactive la anterior.</div>";
     } else {
+        // Si hay cambio de fase, actualizar requerimiento y registrar en reporte
+        $cambio_fase = ($id_fase_nueva !== $id_fase_actual);
+        if ($cambio_fase) {
+            $conn->query("UPDATE requerimiento SET Id_fase = $id_fase_nueva WHERE Id_requerimiento = $id_requerimiento");
+            $cambio_realizado = "[Cambio de fase] " . $cambio_realizado;
+        }
+
         // Insertar en reporte
         $sql = "INSERT INTO reporte (Id_requerimiento, Cambio_realizado, Fecha_cambio, Id_desarrollador)
                 VALUES (?, ?, ?, ?)";
@@ -37,14 +54,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar_reporte'])) 
             // Desactivar cualquier asignación anterior (por seguridad, aunque no debería haber)
             $conn->query("UPDATE asignacion_requerimientos SET activo = 0 WHERE id_requerimiento = $id_requerimiento AND activo = 1");
             // Insertar nueva asignación activa
-            $conn->query("INSERT INTO asignacion_requerimientos (id_requerimiento, id_desarrollador, id_fase, activo) VALUES ($id_requerimiento, $id_desarrollador, $id_fase, 1)");
+            $conn->query("INSERT INTO asignacion_requerimientos (id_requerimiento, id_desarrollador, id_fase, activo) VALUES ($id_requerimiento, $id_desarrollador, $id_fase_nueva, 1)");
         } else {
             $mensaje = "<div class='alert alert-danger'>Error al registrar cambio: " . $conn->error . "</div>";
         }
         $stmt->close();
     }
-    }
-
+}
 
 // Desactivar asignación y crear reporte de terminado
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['desactivar_asignacion'])) {
@@ -72,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['desactivar_asignacion'
 $requerimientos = [];
 if ($id_desarrollador) {
     $sql = "
-        SELECT r.Id_requerimiento, r.Descripcion, r.Prioridad, r.Fecha_creacion, s.Nombre AS Sistema, c.Nombre_cliente
+        SELECT r.Id_requerimiento, r.Descripcion, r.Prioridad, r.Fecha_creacion, r.Id_fase, s.Nombre AS Sistema, c.Nombre_cliente
         FROM requerimiento r
         INNER JOIN sistema s ON r.Id_sistema = s.Id_sistema
         INNER JOIN cliente c ON s.Id_cliente = c.Id_cliente
@@ -94,10 +110,11 @@ if ($id_desarrollador) {
 // Mostrar requerimientos asignados
 $asignados = [];
 $sql = "
-    SELECT ar.id_asignacion, ar.id_requerimiento, ar.id_desarrollador, r.Descripcion, r.Prioridad, r.Fecha_creacion, d.Nombre AS NombreDesarrollador
+    SELECT ar.id_asignacion, ar.id_requerimiento, ar.id_desarrollador, ar.id_fase, r.Descripcion, r.Prioridad, r.Fecha_creacion, d.Nombre AS NombreDesarrollador, f.Nombre AS NombreFase
     FROM asignacion_requerimientos ar
     INNER JOIN requerimiento r ON ar.id_requerimiento = r.Id_requerimiento
     INNER JOIN desarrollador d ON ar.id_desarrollador = d.Id_Desarrollador
+    INNER JOIN fase f ON ar.id_fase = f.Id_fase
     WHERE ar.activo = 1
     AND ar.id_desarrollador = $id_desarrollador
 ";
@@ -148,6 +165,15 @@ if ($id_desarrollador) {
                 </select>
             </div>
             <div class="mb-3">
+                <label for="id_fase" class="form-label">Fase</label>
+                <select class="form-select" id="id_fase" name="id_fase" required>
+                    <option value="">Seleccione una fase</option>
+                    <?php foreach($fases as $fase): ?>
+                        <option value="<?php echo $fase['Id_fase']; ?>"><?php echo htmlspecialchars($fase['Nombre']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="mb-3">
                 <label for="cambio_realizado" class="form-label">Descripción del cambio realizado</label>
                 <textarea class="form-control" id="cambio_realizado" name="cambio_realizado" required></textarea>
             </div>
@@ -168,6 +194,7 @@ if ($id_desarrollador) {
                     <th>Descripción</th>
                     <th>Prioridad</th>
                     <th>Fecha creación</th>
+                    <th>Fase</th>
                     <th>Desarrollador asignado</th>
                     <th>Acción</th>
                 </tr>
@@ -180,6 +207,7 @@ if ($id_desarrollador) {
                             <td><?php echo htmlspecialchars($asig['Descripcion']); ?></td>
                             <td><?php echo htmlspecialchars($asig['Prioridad']); ?></td>
                             <td><?php echo htmlspecialchars($asig['Fecha_creacion']); ?></td>
+                            <td><?php echo htmlspecialchars($asig['NombreFase']); ?></td>
                             <td><?php echo htmlspecialchars($asig['NombreDesarrollador']); ?></td>
                             <td>
                                 <form method="post" style="display:inline;" onsubmit="return confirm('¿Desactivar esta asignación y marcar como terminado?');">
@@ -193,7 +221,7 @@ if ($id_desarrollador) {
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="6">No hay requerimientos asignados.</td></tr>
+                    <tr><td colspan="7">No hay requerimientos asignados.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
