@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `cliente` (
   `Telefono_cliente` varchar(20) DEFAULT NULL,
   `Fecha_registro` datetime DEFAULT NULL,
   PRIMARY KEY (`Id_cliente`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- La exportación de datos fue deseleccionada.
 
@@ -38,10 +38,14 @@ CREATE TABLE IF NOT EXISTS `desarrollador` (
   `Id_Desarrollador` int(11) NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(100) NOT NULL,
   `Correo` varchar(100) NOT NULL,
+  `Contraseña` varchar(255) NOT NULL,
   `Especialidad` varchar(50) NOT NULL,
   `Experiencia` int(11) DEFAULT 1,
   `Fecha_incorporacion` date NOT NULL,
-  PRIMARY KEY (`Id_Desarrollador`)
+  `Id_fase` int(11) DEFAULT NULL,
+  PRIMARY KEY (`Id_Desarrollador`),
+  KEY `desarrollador_ibfk_1` (`Id_fase`),
+  CONSTRAINT `desarrollador_ibfk_1` FOREIGN KEY (`Id_fase`) REFERENCES `fase` (`Id_fase`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- La exportación de datos fue deseleccionada.
@@ -63,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `reporte` (
   `Id_requerimiento` int(11) NOT NULL,
   `Cambio_realizado` text NOT NULL,
   `Fecha_cambio` date DEFAULT NULL,
-  `Id_desarrollador` int(11) DEFAULT NULL,
+  `Id_desarrollador` int(11) NOT NULL,
   PRIMARY KEY (`Id_reporte`),
   KEY `Id_requerimiento` (`Id_requerimiento`),
   KEY `Id_desarrollador` (`Id_desarrollador`),
@@ -81,15 +85,12 @@ CREATE TABLE IF NOT EXISTS `requerimiento` (
   `Prioridad` varchar(20) DEFAULT NULL,
   `Fecha_creacion` date DEFAULT NULL,
   `Fecha_modificacion` date DEFAULT NULL,
-  `Id_desarrollador` int(11) DEFAULT NULL,
   `Id_fase` int(11) NOT NULL,
-  `Estado` varchar(20) DEFAULT NULL,
+  `Estado` varchar(20) NOT NULL DEFAULT 'Pendiente',
   PRIMARY KEY (`Id_requerimiento`),
   KEY `Id_sistema` (`Id_sistema`),
-  KEY `Id_desarrollador` (`Id_desarrollador`),
   KEY `Id_fase` (`Id_fase`),
   CONSTRAINT `requerimiento_ibfk_1` FOREIGN KEY (`Id_sistema`) REFERENCES `sistema` (`Id_sistema`),
-  CONSTRAINT `requerimiento_ibfk_2` FOREIGN KEY (`Id_desarrollador`) REFERENCES `desarrollador` (`Id_Desarrollador`),
   CONSTRAINT `requerimiento_ibfk_3` FOREIGN KEY (`Id_fase`) REFERENCES `fase` (`Id_fase`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -103,7 +104,6 @@ CREATE TABLE IF NOT EXISTS `sistema` (
   `Tipo_sistema` varchar(50) NOT NULL,
   `Version_sistema` varchar(20) DEFAULT '1.0',
   `Estado_sistema` varchar(30) DEFAULT 'Pendiente',
-  `Id_desarrollador` int(11) DEFAULT NULL,
   `Fecha_inicio` date DEFAULT NULL,
   PRIMARY KEY (`Id_sistema`),
   KEY `Id_cliente` (`Id_cliente`),

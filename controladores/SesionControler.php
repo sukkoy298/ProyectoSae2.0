@@ -1,25 +1,25 @@
 <?php
 session_start();
 
-Include('Conexion.php');
+Include('conexion.php');
 
-if (isset($ POST "Usuario"]) && isset($ POST ['Clave'])) {
+if (isset($POST["Usuario"]) && isset($POST['Clave'])) {
 
 function validate($data){
 $data = trim($data);
 $data = stripslashes($data);
-$data = stmlspecialchars($data);
+$data = htmlspecialchars($data);
 return $data;
 }
 
 $Usuario = validate($_POST ['Usuario']);
-$Clave = validate($-POST ['Clave']);
+$Clave = validate($_POST ['Clave']);
 
 if (empty($Usuario)) {
-header("Location: Index.php?error=El Usuario Es Requerido");
+header("Location: ../inicioSesion.php?error=El Usuario Es Requerido");
 exit();
 }elseif (empty($Clave)) {
-	header("Location: Index.php?error=La clave Es Requerida");
+	header("Location: ../inicioSesion.php?error=La clave Es Requerida");
 	exit();
 } else {
 
@@ -37,18 +37,18 @@ exit();
 			header("Location: Inicio.php");
 			exit();
 		} else {
-			header("Location: Index.php?error=El usuario o la clave son incorrectas");
+			header("Location: ../inicioSesion.php?error=El usuario o la clave son incorrectas");
 			exit();
 		}
 	} else {
-		header("Location: Index.php?error=El usuario o la clave son incorrectas");
+		header("Location: ../inicioSesion.php?error=El usuario o la clave son incorrectas");
 		exit();
 	}
 }
 
 } else {
 
-header("Location: Index.php");
+header("Location: ../inicioSesion.php");
 
 exit();
 }

@@ -13,7 +13,7 @@
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
             <h1 class="text-center mb-4"><i class="bi bi-person-circle me-2"></i>Inicio de Sesión</h1>
-            <form action="Inicio_Sesion.php" method="POST">
+            <form action="controladores/SesionControler.php" method="POST">
                 <div class="mb-3">
                     <label for="Usuario" class="form-label">Usuario</label>
                     <div class="input-group">
