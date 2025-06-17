@@ -23,6 +23,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar_sistema'])) 
     }
     $stmt->close();
 }
+// Eliminar sistema
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_sistema'])) {
+    $id_sistema = intval($_POST['id_sistema']);
+    $sql = "DELETE FROM sistema WHERE Id_sistema = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id_sistema);
+    if ($stmt->execute()) {
+        $mensaje = "<div class='alert alert-success'>Sistema eliminado correctamente.</div>";
+    } else {
+        $mensaje = "<div class='alert alert-danger'>Error al eliminar sistema: " . $conn->error . "</div>";
+    }
+    $stmt->close();
+}
+// Si viene id_cliente por GET, selecciona ese cliente y deshabilita el select
+$id_cliente_get = isset($_GET['id']) ? intval($_GET['id']) : null;
 
 // Obtener clientes para el select
 $clientes = [];
@@ -33,17 +48,25 @@ if ($resClientes && $resClientes->num_rows > 0) {
     }
 }
 
-// Obtener sistemas existentes
+// Obtener sistemas existentes según el id_cliente por GET (si existe)
 $sistemas = [];
-$resSistemas = $conn->query("SELECT s.*, c.Nombre_cliente FROM sistema s JOIN cliente c ON s.Id_cliente = c.Id_cliente");
+if ($id_cliente_get) {
+    $stmt = $conn->prepare("SELECT s.*, c.Nombre_cliente FROM sistema s JOIN cliente c ON s.Id_cliente = c.Id_cliente WHERE s.Id_cliente = ?");
+    $stmt->bind_param("i", $id_cliente_get);
+    $stmt->execute();
+    $resSistemas = $stmt->get_result();
+} else {
+    $resSistemas = $conn->query("SELECT s.*, c.Nombre_cliente FROM sistema s JOIN cliente c ON s.Id_cliente = c.Id_cliente");
+}
 if ($resSistemas && $resSistemas->num_rows > 0) {
     while($row = $resSistemas->fetch_assoc()) {
         $sistemas[] = $row;
     }
 }
+if (isset($stmt)) $stmt->close();
 
-// Si viene id_cliente por GET, selecciona ese cliente y deshabilita el select
-$id_cliente_get = isset($_GET['id_cliente']) ? intval($_GET['id_cliente']) : null;
+
+
 ?>
 
 <!DOCTYPE html>
@@ -139,6 +162,11 @@ $id_cliente_get = isset($_GET['id_cliente']) ? intval($_GET['id_cliente']) : nul
                             <td><?php echo htmlspecialchars($sistema['Fecha_inicio']); ?></td>
                             <td>
                                 <a href="agregarRequerimiento.php?id_sistema=<?php echo $sistema['Id_sistema']; ?>" class="btn btn-sm btn-warning">Crear Requerimiento</a>
+                                <form method="post" action="" style="display:inline;" onsubmit="return confirm('¿Está seguro de eliminar este sistema?');">
+                                    <input type="hidden" name="Eliminar_sistema" value="1">
+                                    <input type="hidden" name="id_sistema" value="<?php echo $sistema['Id_sistema']; ?>">
+                                    <button type="submit" class="btn btn-sm btn-danger">Eliminar sistema</button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>

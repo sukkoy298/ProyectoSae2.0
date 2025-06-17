@@ -19,9 +19,29 @@
 CREATE DATABASE IF NOT EXISTS `gestion_proyectos` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `gestion_proyectos`;
 
+-- Volcando estructura para tabla gestion_proyectos.asignacion_requerimientos
+CREATE TABLE IF NOT EXISTS `asignacion_requerimientos` (
+  `id_asignacion` int(11) NOT NULL AUTO_INCREMENT,
+  `id_requerimiento` int(11) NOT NULL,
+  `id_desarrollador` int(11) NOT NULL,
+  `id_fase` int(11) NOT NULL,
+  `fecha_asignacion` datetime NOT NULL DEFAULT current_timestamp(),
+  `activo` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_asignacion`),
+  UNIQUE KEY `uq_asignacion_activa` (`id_requerimiento`,`activo`),
+  KEY `fk_asignacion_desarrollador` (`id_desarrollador`),
+  KEY `fk_asignacion_fase` (`id_fase`),
+  CONSTRAINT `fk_asignacion_desarrollador` FOREIGN KEY (`id_desarrollador`) REFERENCES `desarrollador` (`Id_Desarrollador`),
+  CONSTRAINT `fk_asignacion_fase` FOREIGN KEY (`id_fase`) REFERENCES `fase` (`Id_fase`),
+  CONSTRAINT `fk_asignacion_requerimiento` FOREIGN KEY (`id_requerimiento`) REFERENCES `requerimiento` (`Id_requerimiento`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- La exportación de datos fue deseleccionada.
+
 -- Volcando estructura para tabla gestion_proyectos.cliente
 CREATE TABLE IF NOT EXISTS `cliente` (
   `Id_cliente` int(11) NOT NULL AUTO_INCREMENT,
+  `Nombre_cliente` varchar(255) NOT NULL,
   `Correo_cliente` varchar(100) NOT NULL,
   `Contraseña_cliente` varchar(255) NOT NULL,
   `Ciudad_cliente` varchar(50) NOT NULL,
@@ -29,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `cliente` (
   `Telefono_cliente` varchar(20) DEFAULT NULL,
   `Fecha_registro` datetime DEFAULT NULL,
   PRIMARY KEY (`Id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- La exportación de datos fue deseleccionada.
 
@@ -46,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `desarrollador` (
   PRIMARY KEY (`Id_Desarrollador`),
   KEY `desarrollador_ibfk_1` (`Id_fase`),
   CONSTRAINT `desarrollador_ibfk_1` FOREIGN KEY (`Id_fase`) REFERENCES `fase` (`Id_fase`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- La exportación de datos fue deseleccionada.
 
@@ -57,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `fase` (
   `Orden` int(11) NOT NULL,
   `Descripcion` text DEFAULT NULL,
   PRIMARY KEY (`Id_fase`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- La exportación de datos fue deseleccionada.
 
@@ -92,7 +112,7 @@ CREATE TABLE IF NOT EXISTS `requerimiento` (
   KEY `Id_fase` (`Id_fase`),
   CONSTRAINT `requerimiento_ibfk_1` FOREIGN KEY (`Id_sistema`) REFERENCES `sistema` (`Id_sistema`),
   CONSTRAINT `requerimiento_ibfk_3` FOREIGN KEY (`Id_fase`) REFERENCES `fase` (`Id_fase`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- La exportación de datos fue deseleccionada.
 
@@ -108,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `sistema` (
   PRIMARY KEY (`Id_sistema`),
   KEY `Id_cliente` (`Id_cliente`),
   CONSTRAINT `sistema_ibfk_1` FOREIGN KEY (`Id_cliente`) REFERENCES `cliente` (`Id_cliente`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- La exportación de datos fue deseleccionada.
 

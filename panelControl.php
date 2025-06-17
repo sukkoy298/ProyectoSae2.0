@@ -116,6 +116,7 @@ require_once 'controladores/conexion.php';
                                                 <td>{$row['Experiencia']}</td>
                                                 <td>{$row['Fecha_incorporacion']}</td>
                                                 <td>
+                                                    <a href='panelAsignar.php?id_desarrollador={$row['Id_Desarrollador']}' class='btn btn-sm btn-info'>Asignar</a>
                                                     <a href='editarDesarrollador.php?id={$row['Id_Desarrollador']}' class='btn btn-sm btn-warning'>Editar</a>
                                                     <a href='eliminarDesarrollador.php?id={$row['Id_Desarrollador']}' class='btn btn-sm btn-danger' onclick=\"return confirm('¿Seguro que deseas eliminar este desarrollador?');\">Eliminar</a>
                                                 </td>
@@ -138,7 +139,7 @@ require_once 'controladores/conexion.php';
                 <div class="card text-center">
                     <div class="card-body">
                         <h5 class="card-title">Requerimientos</h5>
-                        <a href="#" class="btn btn-warning mb-3">Agregar Requerimiento</a>
+                        <a href="agregarRequerimiento.php" class="btn btn-warning mb-3">Agregar Requerimiento</a>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover">
                                 <thead class="table-light">
