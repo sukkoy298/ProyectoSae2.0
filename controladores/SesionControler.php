@@ -1,54 +1,51 @@
 <?php
 session_start();
+require_once('conexion.php');
 
-Include('conexion.php');
+if (isset($_POST["Usuario"]) && isset($_POST['Clave'])) {
 
-if (isset($POST["Usuario"]) && isset($POST['Clave'])) {
+    function validate($data){
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return $data;
+    }
 
-function validate($data){
-$data = trim($data);
-$data = stripslashes($data);
-$data = htmlspecialchars($data);
-return $data;
-}
+    $Correo = validate($_POST['Usuario']);
+    $Clave = validate($_POST['Clave']);
 
-$Usuario = validate($_POST ['Usuario']);
-$Clave = validate($_POST ['Clave']);
+    if (empty($Correo)) {
+        header("Location: ../inicioSesion.php?error=El correo es requerido");
+        exit();
+    } elseif (empty($Clave)) {
+        header("Location: ../inicioSesion.php?error=La clave es requerida");
+        exit();
+    } else {
+        // Buscar en la tabla desarrollador por correo
+        $sql = "SELECT * FROM desarrollador WHERE Correo = ?";
+        $stmt = $conn->prepare($sql); 
+        $stmt->bind_param("s", $Correo);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-if (empty($Usuario)) {
-header("Location: ../inicioSesion.php?error=El Usuario Es Requerido");
-exit();
-}elseif (empty($Clave)) {
-	header("Location: ../inicioSesion.php?error=La clave Es Requerida");
-	exit();
+        if ($result && $result->num_rows === 1) {
+            $row = $result->fetch_assoc();
+            if (password_verify($Clave, $row['Contraseña'])) {
+                $_SESSION['Correo'] = $row['Correo'];
+                $_SESSION['Nombre'] = $row['Nombre'];
+                $_SESSION['Id_Desarrollador'] = $row['Id_Desarrollador'];
+                header("Location: ../panelControl.php");
+                exit();
+            } else {
+                header("Location: ../inicioSesion.php?error=El correo o la clave son incorrectos");
+                exit();
+            }
+        } else {
+            header("Location: ../inicioSesion.php?error=El correo o la clave son incorrectos");
+            exit();
+        }
+    }
 } else {
-
-	$Clave = md5($Clave);
-
-	$Sql = "SELECT * FROM usuarios WHERE Usuario = '$Usuario' AND Clave = '$Clave'";
-	$result = mysqli_query($conexion, $Sql);
-
-	if (mysqli_num_rows($result) === 1) {
-		$row = mysqli_fetch_assoc($result);
-		if ($row['Usuario'] === $Usuario && $row['Clave'] === $Clave) {
-			$_SESSION['Usuario'] = $row['Usuario'];
-			$_SESSION['Nombre_Completo'] = $row['Nombre_Completo'];
-			$_SESSION['Id'] = $row['Id'];
-			header("Location: Inicio.php");
-			exit();
-		} else {
-			header("Location: ../inicioSesion.php?error=El usuario o la clave son incorrectas");
-			exit();
-		}
-	} else {
-		header("Location: ../inicioSesion.php?error=El usuario o la clave son incorrectas");
-		exit();
-	}
-}
-
-} else {
-
-header("Location: ../inicioSesion.php");
-
-exit();
+    header("Location: ../inicioSesion.php");
+    exit();
 }

@@ -8,13 +8,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar_sistema'])) 
     $nombre = $_POST['nombre'];
     $tipo = $_POST['tipo'];
     $version = $_POST['version'];
-    $estado = $_POST['estado'];
     $fecha_inicio = $_POST['fecha_inicio'];
 
-    $sql = "INSERT INTO sistema (Id_cliente, Nombre, Tipo_sistema, Version_sistema, Estado_sistema, Fecha_inicio)
-            VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO sistema (Id_cliente, Nombre, Tipo_sistema, Version_sistema, Fecha_inicio)
+            VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isssss", $id_cliente, $nombre, $tipo, $version, $estado, $fecha_inicio);
+    $stmt->bind_param("issss", $id_cliente, $nombre, $tipo, $version, $fecha_inicio);
 
     if ($stmt->execute()) {
         $mensaje = "<div class='alert alert-success'>Sistema registrado correctamente.</div>";
@@ -64,9 +63,6 @@ if ($resSistemas && $resSistemas->num_rows > 0) {
     }
 }
 if (isset($stmt)) $stmt->close();
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -112,19 +108,20 @@ if (isset($stmt)) $stmt->close();
         </div>
         <div class="mb-3">
             <label for="tipo" class="form-label">Tipo de sistema</label>
-            <input type="text" class="form-control" id="tipo" name="tipo" required>
+            <select class="form-select" id="tipo" name="tipo" required>
+                <option value="">Seleccione tipo</option>
+                <option value="aula virtual">Aula virtual</option>
+                <option value="SAE Evaluacion">SAE Evaluacion</option>
+                <option value="SAE Web">SAE Web</option>
+                <option value="Sae pagos">Sae pagos</option>
+                <option value="Sistema de mensajeria">Sistema de mensajeria</option>
+                <option value="Migracion de datos">Migracion de datos</option>
+                <option value="intranet">Intranet</option>
+            </select>
         </div>
         <div class="mb-3">
             <label for="version" class="form-label">Versión</label>
             <input type="text" class="form-control" id="version" name="version" value="1.0" required>
-        </div>
-        <div class="mb-3">
-            <label for="estado" class="form-label">Estado</label>
-            <select class="form-select" id="estado" name="estado" required>
-                <option value="Pendiente">Pendiente</option>
-                <option value="En desarrollo">En desarrollo</option>
-                <option value="Finalizado">Finalizado</option>
-            </select>
         </div>
         <div class="mb-3">
             <label for="fecha_inicio" class="form-label">Fecha de inicio</label>
@@ -144,7 +141,6 @@ if (isset($stmt)) $stmt->close();
                     <th>Nombre</th>
                     <th>Tipo</th>
                     <th>Versión</th>
-                    <th>Estado</th>
                     <th>Fecha inicio</th>
                     <th>Acciones</th>
                 </tr>
@@ -158,7 +154,6 @@ if (isset($stmt)) $stmt->close();
                             <td><?php echo htmlspecialchars($sistema['Nombre']); ?></td>
                             <td><?php echo htmlspecialchars($sistema['Tipo_sistema']); ?></td>
                             <td><?php echo htmlspecialchars($sistema['Version_sistema']); ?></td>
-                            <td><?php echo htmlspecialchars($sistema['Estado_sistema']); ?></td>
                             <td><?php echo htmlspecialchars($sistema['Fecha_inicio']); ?></td>
                             <td>
                                 <a href="agregarRequerimiento.php?id_sistema=<?php echo $sistema['Id_sistema']; ?>" class="btn btn-sm btn-warning">Crear Requerimiento</a>
@@ -171,7 +166,7 @@ if (isset($stmt)) $stmt->close();
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="8">No hay sistemas registrados.</td></tr>
+                    <tr><td colspan="7">No hay sistemas registrados.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

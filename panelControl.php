@@ -1,5 +1,19 @@
 <?php
 require_once 'controladores/conexion.php';
+
+$mensaje = "";
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_requerimiento'])) {
+    $id_requerimiento = intval($_POST['id_requerimiento']);
+    $sql = "UPDATE requerimiento SET Estado = 'Eliminado' WHERE Id_requerimiento = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id_requerimiento);
+    if ($stmt->execute()) {
+        $mensaje = "<div class='alert alert-success'>Requerimiento eliminado correctamente.</div>";
+    } else {
+        $mensaje = "<div class='alert alert-danger'>Error al eliminar requerimiento: " . $conn->error . "</div>";
+    }
+    $stmt->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,6 +43,7 @@ require_once 'controladores/conexion.php';
         </nav>
     </header>
     <div class="container mt-5">
+        <?php if (!empty($mensaje)) echo $mensaje; ?>
         <!-- Clientes -->
         <div class="row mb-4">
             <div class="col">
@@ -155,7 +170,7 @@ require_once 'controladores/conexion.php';
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $sql = "SELECT Id_requerimiento, Id_sistema, Descripcion, Prioridad, Fecha_creacion, Estado FROM requerimiento";
+                                    $sql = "SELECT Id_requerimiento, Id_sistema, Descripcion, Prioridad, Fecha_creacion, Estado FROM requerimiento WHERE Estado != 'Eliminado'";
                                     $result = $conn->query($sql);
                                     if ($result && $result->num_rows > 0) {
                                         while($row = $result->fetch_assoc()) {
@@ -168,7 +183,11 @@ require_once 'controladores/conexion.php';
                                                 <td>{$row['Estado']}</td>
                                                 <td>
                                                     <a href='editarRequerimiento.php?id={$row['Id_requerimiento']}' class='btn btn-sm btn-warning'>Editar</a>
-                                                    <a href='eliminarRequerimiento.php?id={$row['Id_requerimiento']}' class='btn btn-sm btn-danger' onclick=\"return confirm('¿Seguro que deseas eliminar este requerimiento?');\">Eliminar</a>
+                                                    <form method='post' action='' style='display:inline;' onsubmit=\"return confirm('¿Está seguro de eliminar este requerimiento?');\">
+                                                        <input type='hidden' name='Eliminar_requerimiento' value='1'>
+                                                        <input type='hidden' name='id_requerimiento' value='{$row['Id_requerimiento']}'>
+                                                        <button type='submit' class='btn btn-sm btn-danger'>Eliminar</button>
+                                                    </form>
                                                 </td>
                                             </tr>";
                                         }

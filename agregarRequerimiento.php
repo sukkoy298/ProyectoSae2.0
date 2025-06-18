@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar_requerimient
     $prioridad = $_POST['prioridad'];
     $fecha_creacion = date('Y-m-d');
     $id_fase = intval($_POST['id_fase']);
-    $estado = $_POST['estado'];
+    $estado = "Pendiente"; // Siempre pendiente
 
     $sql = "INSERT INTO requerimiento (Id_sistema, Descripcion, Prioridad, Fecha_creacion, Id_fase, Estado)
             VALUES (?, ?, ?, ?, ?, ?)";
@@ -109,7 +109,7 @@ if ($resFases && $resFases->num_rows > 0) {
         </div>
         <div class="mb-3">
             <label for="estado" class="form-label">Estado</label>
-            <select class="form-select" id="estado" name="estado" required>
+            <select class="form-select" id="estado" name="estado" disabled required>
                 <option value="Pendiente">Pendiente</option>
                 <option value="En proceso">En proceso</option>
                 <option value="Finalizado">Finalizado</option>

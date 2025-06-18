@@ -15,7 +15,7 @@
             <h1 class="text-center mb-4"><i class="bi bi-person-circle me-2"></i>Inicio de Sesión</h1>
             <form action="controladores/SesionControler.php" method="POST">
                 <div class="mb-3">
-                    <label for="Usuario" class="form-label">Usuario</label>
+                    <label for="Usuario" class="form-label">Correo</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person"></i></span>
                         <input type="text" class="form-control" id="Usuario" name="Usuario" required>

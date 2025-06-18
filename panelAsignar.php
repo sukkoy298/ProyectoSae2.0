@@ -51,6 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar_reporte'])) 
             $mensaje = "<div class='alert alert-success'>Cambio registrado y requerimiento asignado correctamente.</div>";
             // Actualizar Fecha_modificacion en requerimiento
             $conn->query("UPDATE requerimiento SET Fecha_modificacion = '$fecha_cambio' WHERE Id_requerimiento = $id_requerimiento");
+            // cambiar estado del requerimiento a "En Proceso" (suponiendo que hay un campo 'Estado' o similar)
+            $conn->query("UPDATE requerimiento SET Estado = 'En Proceso', Fecha_modificacion = '$fecha_cambio' WHERE Id_requerimiento = $id_requerimiento");
             // Desactivar cualquier asignación anterior (por seguridad, aunque no debería haber)
             $conn->query("UPDATE asignacion_requerimientos SET activo = 0 WHERE id_requerimiento = $id_requerimiento AND activo = 1");
             // Insertar nueva asignación activa
@@ -72,6 +74,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['desactivar_asignacion'
     // Desactivar la asignación
     $conn->query("UPDATE asignacion_requerimientos SET activo = 0 WHERE id_asignacion = $id_asignacion");
 
+    // Cambiar el estado del requerimiento a terminado (suponiendo que hay un campo 'Estado' o similar)
+    $conn->query("UPDATE requerimiento SET Estado = 'Terminado', Fecha_modificacion = '$fecha_cambio' WHERE Id_requerimiento = $id_requerimiento");
+
     // Crear reporte de terminado
     $sql = "INSERT INTO reporte (Id_requerimiento, Cambio_realizado, Fecha_cambio, Id_desarrollador)
             VALUES (?, ?, ?, ?)";
@@ -81,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['desactivar_asignacion'
     $stmt->execute();
     $stmt->close();
 
-    $mensaje = "<div class='alert alert-success'>Asignación desactivada y reporte de terminado generado.</div>";
+    $mensaje = "<div class='alert alert-success'>Asignación desactivada, requerimiento marcado como terminado y reporte generado.</div>";
 }
 
 // Obtener requerimientos disponibles para este desarrollador
@@ -107,15 +112,15 @@ if ($id_desarrollador) {
     }
 }
 
-// Mostrar requerimientos asignados
+// Mostrar requerimientos asignados y permitir cambiar a "En Proceso"
 $asignados = [];
 $sql = "
-    SELECT ar.id_asignacion, ar.id_requerimiento, ar.id_desarrollador, ar.id_fase, r.Descripcion, r.Prioridad, r.Fecha_creacion, d.Nombre AS NombreDesarrollador, f.Nombre AS NombreFase
+    SELECT ar.id_asignacion, ar.id_requerimiento, ar.id_desarrollador, ar.id_fase, r.Descripcion, r.Prioridad, r.Fecha_creacion, d.Nombre AS NombreDesarrollador, f.Nombre AS NombreFase, r.Estado
     FROM asignacion_requerimientos ar
     INNER JOIN requerimiento r ON ar.id_requerimiento = r.Id_requerimiento
     INNER JOIN desarrollador d ON ar.id_desarrollador = d.Id_Desarrollador
     INNER JOIN fase f ON ar.id_fase = f.Id_fase
-    WHERE ar.activo = 1
+    WHERE ar.activo = 1 and r.estado = 'En Proceso' 
     AND ar.id_desarrollador = $id_desarrollador
 ";
 $res = $conn->query($sql);
@@ -124,6 +129,7 @@ if ($res && $res->num_rows > 0) {
         $asignados[] = $row;
     }
 }
+
 
 // Obtener nombre del desarrollador
 $nombre_desarrollador = "";

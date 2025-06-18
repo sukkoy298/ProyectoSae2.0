@@ -9,13 +9,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $contraseña = password_hash($_POST['contraseña'], PASSWORD_DEFAULT);
     $especialidad = $_POST['especialidad'];
     $experiencia = intval($_POST['experiencia']);
-    $fecha_incorporacion = date('Y-m-d');
-    $id_fase = !empty($_POST['id_fase']) ? intval($_POST['id_fase']) : null;
+    $fecha_incorporacion = $_POST['fecha_incorporacion'];
+    $activo = 1; // Siempre activo al crear
 
-    $sql = "INSERT INTO desarrollador (Nombre, Correo, Contraseña, Especialidad, Experiencia, Fecha_incorporacion, Id_fase)
+    $sql = "INSERT INTO desarrollador (Nombre, Correo, Contraseña, Especialidad, Experiencia, Fecha_incorporacion, activo)
             VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssisi", $nombre, $correo, $contraseña, $especialidad, $experiencia, $fecha_incorporacion, $id_fase);
+    $stmt->bind_param("ssssisi", $nombre, $correo, $contraseña, $especialidad, $experiencia, $fecha_incorporacion, $activo);
 
     if ($stmt->execute()) {
         $mensaje = "<div class='alert alert-success'>Desarrollador agregado correctamente.</div>";
@@ -23,16 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mensaje = "<div class='alert alert-danger'>Error al agregar desarrollador: " . $conn->error . "</div>";
     }
     $stmt->close();
-}
-
-// Obtener fases para el select
-$fases = [];
-$faseSql = "SELECT Id_fase, Nombre FROM fase";
-$faseResult = $conn->query($faseSql);
-if ($faseResult && $faseResult->num_rows > 0) {
-    while($row = $faseResult->fetch_assoc()) {
-        $fases[] = $row;
-    }
 }
 ?>
 
@@ -67,6 +57,10 @@ if ($faseResult && $faseResult->num_rows > 0) {
         <div class="mb-3">
             <label for="experiencia" class="form-label">Años de experiencia</label>
             <input type="number" class="form-control" id="experiencia" name="experiencia" min="1" value="1" required>
+        </div>
+        <div class="mb-3">
+            <label for="fecha_incorporacion" class="form-label">Fecha de incorporación</label>
+            <input type="date" class="form-control" id="fecha_incorporacion" name="fecha_incorporacion" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
         <button type="submit" class="btn btn-success">Agregar</button>
         <a href="panelControl.php" class="btn btn-secondary">Volver</a>
