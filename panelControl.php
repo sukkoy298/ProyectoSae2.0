@@ -14,6 +14,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_requerimiento
     }
     $stmt->close();
 }
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_desarrollador'])) {
+    $id_desarrollador = intval($_POST['id_desarrollador']);
+    $sql = "UPDATE desarrollador SET Activo = 0 WHERE Id_desarrollador = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id_desarrollador);
+    if ($stmt->execute()) {
+        $mensaje = "<div class='alert alert-success'>Desarrollador eliminado correctamente.</div>";
+    } else {
+        $mensaje = "<div class='alert alert-danger'>Error al eliminar desarrollador: " . $conn->error . "</div>";
+    }
+    $stmt->close();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_cliente'])) {
+    $id_cliente = intval($_POST['id_cliente']);
+    $sql = "UPDATE cliente SET Activo = 0 WHERE Id_cliente = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id_cliente);
+    if ($stmt->execute()) {
+        $mensaje = "<div class='alert alert-success'>Cliente eliminado correctamente.</div>";
+    } else {
+        $mensaje = "<div class='alert alert-danger'>Error al eliminar cliente: " . $conn->error . "</div>";
+    }
+    $stmt->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_requerimiento
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $sql = "SELECT Id_cliente, Nombre_cliente, Correo_cliente, Ciudad_cliente, Empresa_cliente, Telefono_cliente, Fecha_registro FROM cliente";
+                                    $sql = "SELECT Id_cliente, Nombre_cliente, Correo_cliente, Ciudad_cliente, Empresa_cliente, Telefono_cliente, Fecha_registro FROM cliente WHERE Activo = 1";
                                     $result = $conn->query($sql);
                                     if ($result && $result->num_rows > 0) {
                                         while($row = $result->fetch_assoc()) {
@@ -82,12 +108,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_requerimiento
                                                 <td>
                                                     <a href='panelSistemas.php?id={$row['Id_cliente']}' class='btn btn-sm btn-info'>Ver Sistemas</a>
                                                     <a href='editarCliente.php?id={$row['Id_cliente']}' class='btn btn-sm btn-warning'>Editar</a>
-                                                    <a href='eliminarCliente.php?id={$row['Id_cliente']}' class='btn btn-sm btn-danger' onclick=\"return confirm('¿Seguro que deseas eliminar este cliente?');\">Eliminar</a>
+                                                    <form method='post' action='' style='display:inline;' onsubmit=\"return confirm('¿Está seguro de eliminar este cliente?');\">
+                                                        <input type='hidden' name='Eliminar_cliente' value='1'>
+                                                        <input type='hidden' name='id_cliente' value='{$row['Id_cliente']}'>
+                                                        <button type='submit' class='btn btn-sm btn-danger'>Eliminar</button>
+                                                    </form>
                                                 </td>
                                             </tr>";
                                         }
                                     } else {
-                                        echo "<tr><td colspan='7'>Sin registros</td></tr>";
+                                        echo "<tr><td colspan='8'>Sin registros</td></tr>";
                                     }
                                     ?>
                                 </tbody>
@@ -119,7 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_requerimiento
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $sql = "SELECT Id_Desarrollador, Nombre, Correo, Especialidad, Experiencia, Fecha_incorporacion FROM desarrollador";
+                                    $sql = "SELECT Id_Desarrollador, Nombre, Correo, Especialidad, Experiencia, Fecha_incorporacion FROM desarrollador WHERE Activo = 1";
                                     $result = $conn->query($sql);
                                     if ($result && $result->num_rows > 0) {
                                         while($row = $result->fetch_assoc()) {
@@ -133,7 +163,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_requerimiento
                                                 <td>
                                                     <a href='panelAsignar.php?id_desarrollador={$row['Id_Desarrollador']}' class='btn btn-sm btn-info'>Asignar</a>
                                                     <a href='editarDesarrollador.php?id={$row['Id_Desarrollador']}' class='btn btn-sm btn-warning'>Editar</a>
-                                                    <a href='eliminarDesarrollador.php?id={$row['Id_Desarrollador']}' class='btn btn-sm btn-danger' onclick=\"return confirm('¿Seguro que deseas eliminar este desarrollador?');\">Eliminar</a>
+                                                    <form method='post' action='' style='display:inline;' onsubmit=\"return confirm('¿Está seguro de eliminar este desarrollador?');\">
+                                                        <input type='hidden' name='Eliminar_desarrollador' value='1'>
+                                                        <input type='hidden' name='id_desarrollador' value='{$row['Id_Desarrollador']}'>
+                                                        <button type='submit' class='btn btn-sm btn-danger'>Eliminar</button>
+                                                    </form>
                                                 </td>
                                             </tr>";
                                         }

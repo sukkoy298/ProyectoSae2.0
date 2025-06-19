@@ -11,11 +11,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $empresa = $_POST['empresa'];
     $telefono = $_POST['telefono'];
     $fecha_registro = date('Y-m-d H:i:s');
+    $activo = 1; 
 
-    $sql = "INSERT INTO cliente (Nombre_cliente, Correo_cliente, Contraseña_cliente, Ciudad_cliente, Empresa_cliente, Telefono_cliente, Fecha_registro)
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO cliente (Nombre_cliente, Correo_cliente, Contraseña_cliente, Ciudad_cliente, Empresa_cliente, Telefono_cliente, Fecha_registro, Activo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssss", $nombre, $correo, $contraseña, $ciudad, $empresa, $telefono, $fecha_registro);
+    $stmt->bind_param("ssssssss", $nombre, $correo, $contraseña, $ciudad, $empresa, $telefono, $fecha_registro, $activo);
 
     if ($stmt->execute()) {
         $mensaje = "<div class='alert alert-success'>Cliente agregado correctamente.</div>";
