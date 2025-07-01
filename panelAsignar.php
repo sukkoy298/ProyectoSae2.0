@@ -147,6 +147,8 @@ if ($id_desarrollador) {
     <meta charset="UTF-8">
     <title>Asignar Requerimientos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
 <div class="container mt-5">
@@ -156,84 +158,104 @@ if ($id_desarrollador) {
     <?php endif; ?>
     <?php echo $mensaje; ?>
 
-    <?php if ($id_desarrollador && count($requerimientos) > 0): ?>
-        <form method="post" class="mb-4">
-            <input type="hidden" name="registrar_reporte" value="1">
-            <div class="mb-3">
-                <label for="id_requerimiento" class="form-label">Requerimiento</label>
-                <select class="form-select" id="id_requerimiento" name="id_requerimiento" required>
-                    <option value="">Seleccione un requerimiento</option>
-                    <?php foreach($requerimientos as $req): ?>
-                        <option value="<?php echo $req['Id_requerimiento']; ?>">
-                            <?php echo htmlspecialchars($req['Descripcion']) . " | Sistema: " . htmlspecialchars($req['Sistema']) . " | Cliente: " . htmlspecialchars($req['Nombre_cliente']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+    <div class="row">
+        <!-- Columna 1: Formulario de asignación -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Asignar Requerimiento</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($id_desarrollador && count($requerimientos) > 0): ?>
+                        <form method="post">
+                            <input type="hidden" name="registrar_reporte" value="1">
+                            <div class="mb-3">
+                                <label for="id_requerimiento" class="form-label">Requerimiento</label>
+                                <select class="form-select" id="id_requerimiento" name="id_requerimiento" required>
+                                    <option value="">Seleccione un requerimiento</option>
+                                    <?php foreach($requerimientos as $req): ?>
+                                        <option value="<?php echo $req['Id_requerimiento']; ?>">
+                                            <?php echo htmlspecialchars($req['Descripcion']) . " | Sistema: " . htmlspecialchars($req['Sistema']) . " | Cliente: " . htmlspecialchars($req['Nombre_cliente']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_fase" class="form-label">Fase</label>
+                                <select class="form-select" id="id_fase" name="id_fase" required>
+                                    <option value="">Seleccione una fase</option>
+                                    <?php foreach($fases as $fase): ?>
+                                        <option value="<?php echo $fase['Id_fase']; ?>"><?php echo htmlspecialchars($fase['Nombre']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cambio_realizado" class="form-label">Descripción del cambio realizado</label>
+                                <textarea class="form-control" id="cambio_realizado" name="cambio_realizado" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Registrar Cambio</button>
+                            <button type="button" class="btn btn-secondary" onclick="history.back();">Volver</button>
+                        </form>
+                    <?php elseif ($id_desarrollador): ?>
+                        <div class="alert alert-warning">No hay requerimientos disponibles para asignar.</div>
+                    <?php else: ?>
+                        <div class="alert alert-danger">No se ha seleccionado un desarrollador.</div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="id_fase" class="form-label">Fase</label>
-                <select class="form-select" id="id_fase" name="id_fase" required>
-                    <option value="">Seleccione una fase</option>
-                    <?php foreach($fases as $fase): ?>
-                        <option value="<?php echo $fase['Id_fase']; ?>"><?php echo htmlspecialchars($fase['Nombre']); ?></option>
-                    <?php endforeach; ?>
-                </select>
+        </div>
+        <!-- Columna 2: Requerimientos asignados -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Requerimientos Asignados</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID Req.</th>
+                                    <th>Descripción</th>
+                                    <th>Prioridad</th>
+                                    <th>Fecha</th>
+                                    <th>Fase</th>
+                                    <th>Desarrollador</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if(count($asignados) > 0): ?>
+                                    <?php foreach($asignados as $asig): ?>
+                                        <tr>
+                                            <td><?php echo $asig['id_requerimiento']; ?></td>
+                                            <td><?php echo htmlspecialchars($asig['Descripcion']); ?></td>
+                                            <td><?php echo htmlspecialchars($asig['Prioridad']); ?></td>
+                                            <td><?php echo htmlspecialchars($asig['Fecha_creacion']); ?></td>
+                                            <td><?php echo htmlspecialchars($asig['NombreFase']); ?></td>
+                                            <td><?php echo htmlspecialchars($asig['NombreDesarrollador']); ?></td>
+                                            <td>
+                                                <form method="post" style="display:inline;" onsubmit="return confirm('¿Desactivar esta asignación y marcar como terminado?');">
+                                                    <input type="hidden" name="desactivar_asignacion" value="1">
+                                                    <input type="hidden" name="id_asignacion" value="<?php echo $asig['id_asignacion']; ?>">
+                                                    <input type="hidden" name="id_requerimiento" value="<?php echo $asig['id_requerimiento']; ?>">
+                                                    <input type="hidden" name="id_desarrollador_asig" value="<?php echo $asig['id_desarrollador']; ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Desactivar</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td colspan="7">No hay requerimientos asignados.</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="cambio_realizado" class="form-label">Descripción del cambio realizado</label>
-                <textarea class="form-control" id="cambio_realizado" name="cambio_realizado" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Registrar Cambio</button>
-        </form>
-    <?php elseif ($id_desarrollador): ?>
-        <div class="alert alert-warning">No hay requerimientos disponibles para asignar.</div>
-    <?php else: ?>
-        <div class="alert alert-danger">No se ha seleccionado un desarrollador.</div>
-    <?php endif; ?>
-
-    <h3 class="mt-5">Requerimientos Asignados</h3>
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-            <thead class="table-light">
-                <tr>
-                    <th>ID Requerimiento</th>
-                    <th>Descripción</th>
-                    <th>Prioridad</th>
-                    <th>Fecha creación</th>
-                    <th>Fase</th>
-                    <th>Desarrollador asignado</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if(count($asignados) > 0): ?>
-                    <?php foreach($asignados as $asig): ?>
-                        <tr>
-                            <td><?php echo $asig['id_requerimiento']; ?></td>
-                            <td><?php echo htmlspecialchars($asig['Descripcion']); ?></td>
-                            <td><?php echo htmlspecialchars($asig['Prioridad']); ?></td>
-                            <td><?php echo htmlspecialchars($asig['Fecha_creacion']); ?></td>
-                            <td><?php echo htmlspecialchars($asig['NombreFase']); ?></td>
-                            <td><?php echo htmlspecialchars($asig['NombreDesarrollador']); ?></td>
-                            <td>
-                                <form method="post" style="display:inline;" onsubmit="return confirm('¿Desactivar esta asignación y marcar como terminado?');">
-                                    <input type="hidden" name="desactivar_asignacion" value="1">
-                                    <input type="hidden" name="id_asignacion" value="<?php echo $asig['id_asignacion']; ?>">
-                                    <input type="hidden" name="id_requerimiento" value="<?php echo $asig['id_requerimiento']; ?>">
-                                    <input type="hidden" name="id_desarrollador_asig" value="<?php echo $asig['id_desarrollador']; ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">Desactivar</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr><td colspan="7">No hay requerimientos asignados.</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+        </div>
     </div>
 
-    <a href="panelControl.php" class="btn btn-secondary">Volver</a>
 </div>
 </body>
 </html>

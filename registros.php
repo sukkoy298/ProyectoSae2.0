@@ -1,99 +1,77 @@
 <?php
-require_once 'conexion.php';
+require_once 'controladores/conexion.php';
+
+$mensaje = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nombre = $_POST['nombre'];
+    $correo = $_POST['correo'];
+    $contraseña = password_hash($_POST['contraseña'], PASSWORD_DEFAULT);
+    $ciudad = $_POST['ciudad'];
+    $empresa = $_POST['empresa'];
+    $telefono = $_POST['telefono'];
+    $fecha_registro = date('Y-m-d H:i:s');
+    $activo = 1; 
+
+    $sql = "INSERT INTO cliente (Nombre_cliente, Correo_cliente, Contraseña_cliente, Ciudad_cliente, Empresa_cliente, Telefono_cliente, Fecha_registro, Activo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssssssss", $nombre, $correo, $contraseña, $ciudad, $empresa, $telefono, $fecha_registro, $activo);
+
+    if ($stmt->execute()) {
+        $mensaje = "<div class='alert alert-success'>Cliente agregado correctamente.</div>";
+        echo "<script>
+            setTimeout(function() {
+                window.location.href = 'inicioSesion.php';
+            }, 3000);
+        </script>";
+    } else {
+        $mensaje = "<div class='alert alert-danger'>Error al agregar cliente: " . $conn->error . "</div>";
+    }
+    $stmt->close();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Gestión de Proyectos</title>
-    <style>
-
-    </style>
+    <title>Registro Cliente</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="tabla-container">
-        <h2>Clientes</h2>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Correo</th>
-                <th>Ciudad</th>
-                <th>Empresa</th>
-                <th>Teléfono</th>
-                <th>Fecha Registro</th>
-            </tr>
-            <?php
-            $sql = "SELECT Id_cliente, Correo_cliente, Ciudad_cliente, Empresa_cliente, Telefono_cliente, Fecha_registro FROM cliente";
-            $result = $conn->query($sql);
-            while($row = $result->fetch_assoc()) {
-                echo "<tr>
-                        <td>{$row['Id_cliente']}</td>
-                        <td>{$row['Correo_cliente']}</td>
-                        <td>{$row['Ciudad_cliente']}</td>
-                        <td>{$row['Empresa_cliente']}</td>
-                        <td>{$row['Telefono_cliente']}</td>
-                        <td>{$row['Fecha_registro']}</td>
-                      </tr>";
-            }
-            ?>
-        </table>
-    </div>
-
-    <div class="tabla-container">
-        <h2>Desarrolladores</h2>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Especialidad</th>
-                <th>Experiencia</th>
-                <th>Fecha Incorporación</th>
-            </tr>
-            <?php
-            $sql = "SELECT Id_Desarrollador, Nombre, Correo, Especialidad, Experiencia, Fecha_incorporacion FROM desarrollador";
-            $result = $conn->query($sql);
-            while($row = $result->fetch_assoc()) {
-                echo "<tr>
-                        <td>{$row['Id_Desarrollador']}</td>
-                        <td>{$row['Nombre']}</td>
-                        <td>{$row['Correo']}</td>
-                        <td>{$row['Especialidad']}</td>
-                        <td>{$row['Experiencia']}</td>
-                        <td>{$row['Fecha_incorporacion']}</td>
-                      </tr>";
-            }
-            ?>
-        </table>
-    </div>
-
-    <div class="tabla-container">
-        <h2>Requerimientos</h2>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>ID Sistema</th>
-                <th>Descripción</th>
-                <th>Prioridad</th>
-                <th>Fecha Creación</th>
-                <th>Estado</th>
-            </tr>
-            <?php
-            $sql = "SELECT Id_requerimiento, Id_sistema, Descripcion, Prioridad, Fecha_creacion, Estado FROM requerimiento";
-            $result = $conn->query($sql);
-            while($row = $result->fetch_assoc()) {
-                echo "<tr>
-                        <td>{$row['Id_requerimiento']}</td>
-                        <td>{$row['Id_sistema']}</td>
-                        <td>{$row['Descripcion']}</td>
-                        <td>{$row['Prioridad']}</td>
-                        <td>{$row['Fecha_creacion']}</td>
-                        <td>{$row['Estado']}</td>
-                      </tr>";
-            }
-            ?>
-        </table>
-    </div>
+<body style= "background-color:#F8F8FF">
+<div class="container mt-5">
+    <h2>Registrar Cliente</h2>
+    <?php echo $mensaje; ?>
+    <form method="post" action="">
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" required>
+        </div>
+        <div class="mb-3">
+            <label for="correo" class="form-label">Correo</label>
+            <input type="email" class="form-control" id="correo" name="correo" required>
+        </div>
+        <div class="mb-3">
+            <label for="contraseña" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="contraseña" name="contraseña" required>
+        </div>
+        <div class="mb-3">
+            <label for="ciudad" class="form-label">Ciudad</label>
+            <input type="text" class="form-control" id="ciudad" name="ciudad" required>
+        </div>
+        <div class="mb-3">
+            <label for="empresa" class="form-label">Empresa</label>
+            <input type="text" class="form-control" id="empresa" name="empresa" required>
+        </div>
+        <div class="mb-3">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input type="text" class="form-control" id="telefono" name="telefono">
+        </div>
+        <button type="submit" class="btn btn-primary">Registrar</button>
+        <button type="button" class="btn btn-secondary" onclick="history.back();">Volver</button>
+    </form>
+</div>
 </body>
 </html>

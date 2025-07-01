@@ -1,51 +1,53 @@
 <?php
 session_start();
-require_once('conexion.php');
+require_once 'conexion.php';
 
-if (isset($_POST["Usuario"]) && isset($_POST['Clave'])) {
+$usuario = $_POST['Usuario'] ?? '';
+$clave = $_POST['Clave'] ?? '';
 
-    function validate($data){
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = htmlspecialchars($data);
-        return $data;
-    }
-
-    $Correo = validate($_POST['Usuario']);
-    $Clave = validate($_POST['Clave']);
-
-    if (empty($Correo)) {
-        header("Location: ../inicioSesion.php?error=El correo es requerido");
-        exit();
-    } elseif (empty($Clave)) {
-        header("Location: ../inicioSesion.php?error=La clave es requerida");
-        exit();
-    } else {
-        // Buscar en la tabla desarrollador por correo
-        $sql = "SELECT * FROM desarrollador WHERE Correo = ?";
-        $stmt = $conn->prepare($sql); 
-        $stmt->bind_param("s", $Correo);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result && $result->num_rows === 1) {
-            $row = $result->fetch_assoc();
-            if (password_verify($Clave, $row['Contraseña'])) {
-                $_SESSION['Correo'] = $row['Correo'];
-                $_SESSION['Nombre'] = $row['Nombre'];
-                $_SESSION['Id_Desarrollador'] = $row['Id_Desarrollador'];
-                header("Location: ../panelControl.php");
-                exit();
-            } else {
-                header("Location: ../inicioSesion.php?error=El correo o la clave son incorrectos");
-                exit();
-            }
-        } else {
-            header("Location: ../inicioSesion.php?error=El correo o la clave son incorrectos");
-            exit();
-        }
-    }
-} else {
-    header("Location: ../inicioSesion.php");
-    exit();
+// ADMINISTRADOR
+if ($usuario === 'admin' && $clave === 'admin') {
+    $_SESSION['admin'] = true;
+    header('Location: ../panelControl.php');
+    exit;
 }
+
+// CLIENTE
+$sql_cliente = "SELECT * FROM cliente WHERE Correo_cliente = ? AND activo = 1";
+$stmt_cliente = $conn->prepare($sql_cliente);
+$stmt_cliente->bind_param("s", $usuario);
+$stmt_cliente->execute();
+$result_cliente = $stmt_cliente->get_result();
+
+if ($row = $result_cliente->fetch_assoc()) {
+    if (password_verify($clave, $row['Contraseña_cliente'])) {
+        $_SESSION['cliente_id'] = $row['Id_cliente'];
+        $_SESSION['cliente_nombre'] = $row['Nombre_cliente'];
+        header("Location: ../VistaClientes.php");
+        exit;
+    }
+}
+$stmt_cliente->close();
+
+// DESARROLLADOR
+$sql_dev = "SELECT * FROM desarrollador WHERE Correo = ? AND activo = 1";
+$stmt_dev = $conn->prepare($sql_dev);
+$stmt_dev->bind_param("s", $usuario);
+$stmt_dev->execute();
+$result_dev = $stmt_dev->get_result();
+
+if ($row = $result_dev->fetch_assoc()) {
+    if (password_verify($clave, $row['Contraseña'])) {
+        $_SESSION['desarrollador_id'] = $row['Id_Desarrollador'];
+        $_SESSION['desarrollador_nombre'] = $row['Nombre'];
+        header("Location: ../VistaDesarrolladores.php");
+        exit;
+    }
+}
+$stmt_dev->close();
+
+// Si no coincide ningún usuario
+$mensaje = "Usuario o clave incorrectos.";
+header("Location: ../inicioSesion.php?error=" . urlencode($mensaje));
+exit;
+?>

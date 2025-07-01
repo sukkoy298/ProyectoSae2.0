@@ -1,241 +1,163 @@
-<?php
-require_once 'controladores/conexion.php';
 
-$mensaje = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_requerimiento'])) {
-    $id_requerimiento = intval($_POST['id_requerimiento']);
-    $sql = "UPDATE requerimiento SET Estado = 'Eliminado' WHERE Id_requerimiento = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id_requerimiento);
-    if ($stmt->execute()) {
-        $mensaje = "<div class='alert alert-success'>Requerimiento eliminado correctamente.</div>";
-    } else {
-        $mensaje = "<div class='alert alert-danger'>Error al eliminar requerimiento: " . $conn->error . "</div>";
-    }
-    $stmt->close();
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_desarrollador'])) {
-    $id_desarrollador = intval($_POST['id_desarrollador']);
-    $sql = "UPDATE desarrollador SET Activo = 0 WHERE Id_desarrollador = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id_desarrollador);
-    if ($stmt->execute()) {
-        $mensaje = "<div class='alert alert-success'>Desarrollador eliminado correctamente.</div>";
-    } else {
-        $mensaje = "<div class='alert alert-danger'>Error al eliminar desarrollador: " . $conn->error . "</div>";
-    }
-    $stmt->close();
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_cliente'])) {
-    $id_cliente = intval($_POST['id_cliente']);
-    $sql = "UPDATE cliente SET Activo = 0 WHERE Id_cliente = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id_cliente);
-    if ($stmt->execute()) {
-        $mensaje = "<div class='alert alert-success'>Cliente eliminado correctamente.</div>";
-    } else {
-        $mensaje = "<div class='alert alert-danger'>Error al eliminar cliente: " . $conn->error . "</div>";
-    }
-    $stmt->close();
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <title>Panel de control</title>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">Panel de Control</a>
+        <nav class="navbar navbar-expand-lg ">
+            <div class="container-fluid">   
+                <h3>Panel de contol</h3>
+                <a href="" id="nav-panelC">Panel de control</a>
+                    <a href="ClientesPC.php">Clientes</a>
+                    <a href="Desarrolladores.php">Desarrolladores</a>
+                    <a href="Requerimientos.php">Requerimientos</a>
+                    <a href="reportes.php">Reportes</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link active bg-danger" aria-current="page" href="controladores/cerrarSesion.php">Salir</a>
+                            <a class="nav-link " aria-current="page" href="controladores/cerrarSesion.php">Salir</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container mt-5">
-        <?php if (!empty($mensaje)) echo $mensaje; ?>
-        <!-- Clientes -->
-        <div class="row mb-4">
-            <div class="col">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Clientes</h5>
-                        <a href="agregarCliente.php" class="btn btn-primary mb-3">Agregar Cliente</a>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Correo</th>
-                                        <th>Ciudad</th>
-                                        <th>Empresa</th>
-                                        <th>Teléfono</th>
-                                        <th>Fecha Registro</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $sql = "SELECT Id_cliente, Nombre_cliente, Correo_cliente, Ciudad_cliente, Empresa_cliente, Telefono_cliente, Fecha_registro FROM cliente WHERE Activo = 1";
-                                    $result = $conn->query($sql);
-                                    if ($result && $result->num_rows > 0) {
-                                        while($row = $result->fetch_assoc()) {
-                                            echo "<tr>
-                                                <td>{$row['Id_cliente']}</td>
-                                                <td>{$row['Nombre_cliente']}</td>
-                                                <td>{$row['Correo_cliente']}</td>
-                                                <td>{$row['Ciudad_cliente']}</td>
-                                                <td>{$row['Empresa_cliente']}</td>
-                                                <td>{$row['Telefono_cliente']}</td>
-                                                <td>{$row['Fecha_registro']}</td>
-                                                <td>
-                                                    <a href='panelSistemas.php?id={$row['Id_cliente']}' class='btn btn-sm btn-info'>Ver Sistemas</a>
-                                                    <a href='editarCliente.php?id={$row['Id_cliente']}' class='btn btn-sm btn-warning'>Editar</a>
-                                                    <form method='post' action='' style='display:inline;' onsubmit=\"return confirm('¿Está seguro de eliminar este cliente?');\">
-                                                        <input type='hidden' name='Eliminar_cliente' value='1'>
-                                                        <input type='hidden' name='id_cliente' value='{$row['Id_cliente']}'>
-                                                        <button type='submit' class='btn btn-sm btn-danger'>Eliminar</button>
-                                                    </form>
-                                                </td>
-                                            </tr>";
-                                        }
-                                    } else {
-                                        echo "<tr><td colspan='8'>Sin registros</td></tr>";
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
+
+    <div class="container">
+        <div class="cardPanel mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Gestión de Fases</h5>
+                <p class="card-text">Agrega nuevas fases para los requerimientos de los sistemas.</p>
+                <!-- Botón para abrir el modal -->
+                <button type="button" class="btn mb-3" style="background-color: #800080; color: #fff;" data-bs-toggle="modal" data-bs-target="#modalFase">
+                    Agregar Fase
+                </button>
+
+                <!-- Modal Fase -->
+                <div class="modal fade" id="modalFase" tabindex="-1" aria-labelledby="modalFaseLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content" style ="background-color:#2c3e50">
+                      <form method="post">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="modalFaseLabel">Agregar Nueva Fase</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                         </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="nombre_fase" class="form-label">Nombre de la Fase</label>
+                            <input type="text" class="form-control" id="nombre_fase" name="nombre_fase" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="descripcion_fase" class="form-label">Descripción de la Fase</label>
+                            <textarea class="form-control" id="descripcion_fase" name="descripcion_fase" rows="3" required></textarea>
+                          </div>    
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn" style= "background-color: #8B0000; color: #fff" data-bs-dismiss="modal">Cancelar</button>
+                          <button type="submit" class="btn" style="background-color: #800080; color: #fff;">Guardar Fase</button>
+                        </div>
+                      </form>
+                      <?php
+                      require_once 'controladores/conexion.php';
+                      if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nombre_fase'], $_POST['descripcion_fase'])) {
+                          $nombre = trim($_POST['nombre_fase']);
+                          $descripcion = trim($_POST['descripcion_fase']);
+                          if ($nombre !== "" && $descripcion !== "") {
+                              $stmt = $conn->prepare("INSERT INTO fase (Nombre, Descripcion) VALUES (?, ?)");
+                              $stmt->bind_param("ss", $nombre, $descripcion);
+                              if ($stmt->execute()) {
+                                  echo "<div class='alert alert-success m-3'>Fase agregada correctamente.</div>";
+                              } else {
+                                  echo "<div class='alert alert-danger m-3'>Error al agregar fase: " . $conn->error . "</div>";
+                              }
+                              $stmt->close();
+                          } else {
+                              echo "<div class='alert alert-warning m-3'>El nombre y la descripción de la fase no pueden estar vacíos.</div>";
+                          }
+                      }
+                      ?>
                     </div>
+                  </div>
                 </div>
             </div>
         </div>
-        <!-- Desarrolladores -->
-        <div class="row mb-4">
-            <div class="col">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Desarrolladores</h5>
-                        <a href="agregarDesarrollador.php" class="btn btn-success mb-3">Agregar Desarrollador</a>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Correo</th>
-                                        <th>Especialidad</th>
-                                        <th>Experiencia</th>
-                                        <th>Fecha Incorporación</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $sql = "SELECT Id_Desarrollador, Nombre, Correo, Especialidad, Experiencia, Fecha_incorporacion FROM desarrollador WHERE Activo = 1";
-                                    $result = $conn->query($sql);
-                                    if ($result && $result->num_rows > 0) {
-                                        while($row = $result->fetch_assoc()) {
-                                            echo "<tr>
-                                                <td>{$row['Id_Desarrollador']}</td>
-                                                <td>{$row['Nombre']}</td>
-                                                <td>{$row['Correo']}</td>
-                                                <td>{$row['Especialidad']}</td>
-                                                <td>{$row['Experiencia']}</td>
-                                                <td>{$row['Fecha_incorporacion']}</td>
-                                                <td>
-                                                    <a href='panelAsignar.php?id_desarrollador={$row['Id_Desarrollador']}' class='btn btn-sm btn-info'>Asignar</a>
-                                                    <a href='editarDesarrollador.php?id={$row['Id_Desarrollador']}' class='btn btn-sm btn-warning'>Editar</a>
-                                                    <form method='post' action='' style='display:inline;' onsubmit=\"return confirm('¿Está seguro de eliminar este desarrollador?');\">
-                                                        <input type='hidden' name='Eliminar_desarrollador' value='1'>
-                                                        <input type='hidden' name='id_desarrollador' value='{$row['Id_Desarrollador']}'>
-                                                        <button type='submit' class='btn btn-sm btn-danger'>Eliminar</button>
-                                                    </form>
-                                                </td>
-                                            </tr>";
-                                        }
-                                    } else {
-                                        echo "<tr><td colspan='7'>Sin registros</td></tr>";
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
+
+        <!-- Panel para agregar tipo de sistema -->
+        <div class="cardPanel mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Gestión de Tipos de Sistemas</h5>
+                <p class="card-text">Agrega nuevos tipos de sistemas para clasificar los proyectos.</p>
+                <!-- Botón para abrir el modal -->
+                <button type="button" class="btn mb-3" style="background-color: #006400; color: #fff;" data-bs-toggle="modal" data-bs-target="#modalTipoSistema">
+                    Agregar Tipo de Sistema
+                </button>
+
+                <!-- Modal Tipo de Sistema -->
+                <div class="modal fade" id="modalTipoSistema" tabindex="-1" aria-labelledby="modalTipoSistemaLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content" style ="background-color:#2c3e50">
+                      <form method="post">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="modalTipoSistemaLabel">Agregar Nuevo Tipo de Sistema</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Requerimientos -->
-        <div class="row mb-4">
-            <div class="col">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Requerimientos</h5>
-                        <a href="agregarRequerimiento.php" class="btn btn-warning mb-3">Agregar Requerimiento</a>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>ID Sistema</th>
-                                        <th>Descripción</th>
-                                        <th>Prioridad</th>
-                                        <th>Fecha Creación</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $sql = "SELECT Id_requerimiento, Id_sistema, Descripcion, Prioridad, Fecha_creacion, Estado FROM requerimiento WHERE Estado != 'Eliminado'";
-                                    $result = $conn->query($sql);
-                                    if ($result && $result->num_rows > 0) {
-                                        while($row = $result->fetch_assoc()) {
-                                            echo "<tr>
-                                                <td>{$row['Id_requerimiento']}</td>
-                                                <td>{$row['Id_sistema']}</td>
-                                                <td>{$row['Descripcion']}</td>
-                                                <td>{$row['Prioridad']}</td>
-                                                <td>{$row['Fecha_creacion']}</td>
-                                                <td>{$row['Estado']}</td>
-                                                <td>
-                                                    <a href='editarRequerimiento.php?id={$row['Id_requerimiento']}' class='btn btn-sm btn-warning'>Editar</a>
-                                                    <form method='post' action='' style='display:inline;' onsubmit=\"return confirm('¿Está seguro de eliminar este requerimiento?');\">
-                                                        <input type='hidden' name='Eliminar_requerimiento' value='1'>
-                                                        <input type='hidden' name='id_requerimiento' value='{$row['Id_requerimiento']}'>
-                                                        <button type='submit' class='btn btn-sm btn-danger'>Eliminar</button>
-                                                    </form>
-                                                </td>
-                                            </tr>";
-                                        }
-                                    } else {
-                                        echo "<tr><td colspan='7'>Sin registros</td></tr>";
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="nombre_tipo" class="form-label">Nombre del Tipo</label>
+                            <input type="text" class="form-control" id="nombre_tipo" name="nombre_tipo" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="descripcion_tipo" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion_tipo" name="descripcion_tipo" rows="3" required></textarea>
+                          </div>
+                          <div class="mb-3">
+                            <label for="activo_tipo" class="form-label">Activo</label>
+                            <select class="form-select" id="activo_tipo" name="activo_tipo" required>
+                                <option value="1" selected>Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                          </div>
                         </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn" style= "background-color: #8B0000; color: #fff" data-bs-dismiss="modal">Cancelar</button>
+                          <button type="submit" class="btn" style="background-color: #006400; color: #fff;">Guardar Tipo</button>
+                        </div>
+                      </form>
+                      <?php
+                      require_once 'controladores/conexion.php';
+                      if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nombre_tipo'], $_POST['descripcion_tipo'], $_POST['activo_tipo'])) {
+                          $nombre_tipo = trim($_POST['nombre_tipo']);
+                          $descripcion_tipo = trim($_POST['descripcion_tipo']);
+                          $activo_tipo = intval($_POST['activo_tipo']);
+                          if ($nombre_tipo !== "" && $descripcion_tipo !== "") {
+                              $stmt = $conn->prepare("INSERT INTO tipo_sistema (nombre, descripcion, activo) VALUES (?, ?, ?)");
+                              $stmt->bind_param("ssi", $nombre_tipo, $descripcion_tipo, $activo_tipo);
+                              if ($stmt->execute()) {
+                                  echo "<div class='alert alert-success m-3'>Tipo de sistema agregado correctamente.</div>";
+                              } else {
+                                  echo "<div class='alert alert-danger m-3'>Error al agregar tipo de sistema: " . $conn->error . "</div>";
+                              }
+                              $stmt->close();
+                          } else {
+                              echo "<div class='alert alert-warning m-3'>El nombre y la descripción no pueden estar vacíos.</div>";
+                          }
+                      }
+                      ?>
                     </div>
+                  </div>
                 </div>
             </div>
         </div>
     </div>
+    
 </body>
 </html>

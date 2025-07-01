@@ -32,9 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Agregar Cliente</title>
+    <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body style= "background-color:#F8F8FF">
 <div class="container mt-5">
     <h2>Agregar Cliente</h2>
     <?php echo $mensaje; ?>
@@ -64,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="text" class="form-control" id="telefono" name="telefono">
         </div>
         <button type="submit" class="btn btn-primary">Agregar</button>
-        <a href="panelControl.php" class="btn btn-secondary">Volver</a>
+        <button type="button" class="btn btn-secondary" onclick="history.back();">Volver</button>
     </form>
 </div>
 </body>

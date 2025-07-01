@@ -21,14 +21,6 @@ if (!$desarrollador) {
     exit;
 }
 
-// Obtener fases para el select
-$fases = [];
-$resFases = $conn->query("SELECT Id_fase, Nombre FROM fase");
-if ($resFases && $resFases->num_rows > 0) {
-    while($row = $resFases->fetch_assoc()) {
-        $fases[] = $row;
-    }
-}
 
 // Procesar actualización
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -37,18 +29,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $especialidad = $_POST['especialidad'];
     $experiencia = intval($_POST['experiencia']);
     $fecha_incorporacion = $_POST['fecha_incorporacion'];
-    $id_fase = !empty($_POST['id_fase']) ? intval($_POST['id_fase']) : null;
     $nueva_contraseña = $_POST['contraseña'];
 
     if (!empty($nueva_contraseña)) {
         $contraseña_hash = password_hash($nueva_contraseña, PASSWORD_DEFAULT);
-        $sql = "UPDATE desarrollador SET Nombre=?, Correo=?, Contraseña=?, Especialidad=?, Experiencia=?, Fecha_incorporacion=?, Id_fase=? WHERE Id_Desarrollador=?";
+        $sql = "UPDATE desarrollador SET Nombre=?, Correo=?, Contraseña=?, Especialidad=?, Experiencia=?, Fecha_incorporacion=? WHERE Id_Desarrollador=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssissi", $nombre, $correo, $contraseña_hash, $especialidad, $experiencia, $fecha_incorporacion, $id_fase, $id_desarrollador);
+        $stmt->bind_param("ssssisi", $nombre, $correo, $contraseña_hash, $especialidad, $experiencia, $fecha_incorporacion, $id_desarrollador);
     } else {
-        $sql = "UPDATE desarrollador SET Nombre=?, Correo=?, Especialidad=?, Experiencia=?, Fecha_incorporacion=?, Id_fase=? WHERE Id_Desarrollador=?";
+        $sql = "UPDATE desarrollador SET Nombre=?, Correo=?, Especialidad=?, Experiencia=?, Fecha_incorporacion=? WHERE Id_Desarrollador=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssissi", $nombre, $correo, $especialidad, $experiencia, $fecha_incorporacion, $id_fase, $id_desarrollador);
+        $stmt->bind_param("sssisi", $nombre, $correo, $especialidad, $experiencia, $fecha_incorporacion, $id_desarrollador);
     }
 
     if ($stmt->execute()) {
@@ -75,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Editar Desarrollador</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body style= "background-color:#F8F8FF">
 <div class="container mt-5">
     <h2>Editar Desarrollador</h2>
     <?php echo $mensaje; ?>
@@ -104,19 +95,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="fecha_incorporacion" class="form-label">Fecha de incorporación</label>
             <input type="date" class="form-control" id="fecha_incorporacion" name="fecha_incorporacion" value="<?php echo htmlspecialchars($desarrollador['Fecha_incorporacion']); ?>" required>
         </div>
-        <div class="mb-3">
-            <label for="id_fase" class="form-label">Fase</label>
-            <select class="form-select" id="id_fase" name="id_fase">
-                <option value="">Sin fase</option>
-                <?php foreach($fases as $fase): ?>
-                    <option value="<?php echo $fase['Id_fase']; ?>" <?php if($desarrollador['Id_fase'] == $fase['Id_fase']) echo 'selected'; ?>>
-                        <?php echo htmlspecialchars($fase['Nombre']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+       
         <button type="submit" class="btn btn-primary">Actualizar</button>
-        <a href="panelControl.php" class="btn btn-secondary">Volver</a>
+       <button type="button" class="btn btn-secondary" onclick="history.back();">Volver</button>
     </form>
 </div>
 </body>
