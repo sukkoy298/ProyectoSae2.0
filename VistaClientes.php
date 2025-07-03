@@ -112,7 +112,7 @@ $result_reqs = $stmt_reqs->get_result();
                                             <td>{$row['Version_sistema']}</td>
                                             <td>{$row['Fecha_inicio']}</td>
                                             <td>
-                                                <a href='agregarRequerimiento.php?id_sistema={$row['Id_sistema']}' class='btn btn-sm btn-warning'>Crear Requerimiento</a>
+                                                <a href='agregarRequerimiento.php?id_sistema={$row['Id_sistema']}' class='btn btn-sm btn-warning mb-3'>Crear Requerimiento</a>
                                                 <form method='post' action='' style='display:inline;' onsubmit=\"return confirm('¿Está seguro de eliminar este sistema?');\">
                                                     <input type='hidden' name='Eliminar_sistema' value='1'>
                                                     <input type='hidden' name='id_sistema' value='{$row['Id_sistema']}'>

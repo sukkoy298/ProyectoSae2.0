@@ -36,9 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_cliente'])) {
                     <a href="ClientesPC.php" id="nav-Clientes">Clientes</a>
                     <a href="Desarrolladores.php">Desarrolladores</a>
                     <a href="Requerimientos.php">Requerimientos</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                     <a href="reportes.php">Reportes</a>
+                
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link " aria-current="page" href="controladores/cerrarSesion.php">Salir</a>

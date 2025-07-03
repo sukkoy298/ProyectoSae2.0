@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'controladores/conexion.php';
 
 $mensaje = "";
@@ -13,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar_requerimient
     $prioridad = $_POST['prioridad'];
     $fecha_creacion = date('Y-m-d');
     $id_fase = intval($_POST['id_fase']);
-    $estado = "Pendiente"; // Siempre pendiente
+    $estado = "Pendiente"; // Siempre pendienteS
 
     $sql = "INSERT INTO requerimiento (Id_sistema, Descripcion, Prioridad, Fecha_creacion, Id_fase, Estado)
             VALUES (?, ?, ?, ?, ?, ?)";
@@ -100,12 +101,26 @@ if ($resFases && $resFases->num_rows > 0) {
         </div>
         <div class="mb-3">
             <label for="id_fase" class="form-label">Fase</label>
-            <select class="form-select" id="id_fase" name="id_fase" required>
-                <option value="">Seleccione una fase</option>
-                <?php foreach($fases as $fase): ?>
-                    <option value="<?php echo $fase['Id_fase']; ?>"><?php echo htmlspecialchars($fase['Nombre']); ?></option>
-                <?php endforeach; ?>
-            </select>
+            <?php if (isset($_SESSION['admin'])): ?>
+                <select class="form-select" id="id_fase" name="id_fase" required>
+                    <option value="">Seleccione una fase</option>
+                    <?php foreach($fases as $fase): ?>
+                        <option value="<?php echo $fase['Id_fase']; ?>"><?php echo htmlspecialchars($fase['Nombre']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            <?php elseif (isset($_SESSION['cliente_id'])): ?>
+                <?php
+                // Asignar la primera fase disponible
+                $fase_cliente = $fases[0]['Id_fase'] ?? '';
+                $nombre_fase_cliente = $fases[0]['Nombre'] ?? 'No hay fases';
+                ?>
+                <input type="hidden" name="id_fase" value="<?php echo $fase_cliente; ?>">
+                <input type="text" class="form-control" value="<?php echo htmlspecialchars($nombre_fase_cliente); ?>" disabled>
+            <?php else: ?>
+                <select class="form-select" id="id_fase" name="id_fase" disabled>
+                    <option value="">No autorizado</option>
+                </select>
+            <?php endif; ?>
         </div>
         <div class="mb-3">
             <label for="estado" class="form-label">Estado</label>

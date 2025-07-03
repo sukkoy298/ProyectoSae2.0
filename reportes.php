@@ -107,7 +107,28 @@ if ($reporte == 'desarrolladores_requerimientos') {
     <meta charset="UTF-8">
     <title>Reportes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
+<header>
+        <nav class="navbar navbar-expand-lg ">
+            <div class="container-fluid">   
+                <h3>Panel de contol</h3>
+                <a href="panelControl.php">Panel de control</a>
+                    <a href="ClientesPC.php">Clientes</a>
+                    <a href="Desarrolladores.php">Desarrolladores</a>
+                    <a href="Requerimientos.php">Requerimientos</a>
+                    
+                    <a href="reportes.php" id="nav-Repor" style="color: white; background-color:#006400; border-radius: 50px; padding: 6px 12px; text-decoration: none;">Reportes</a>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link " aria-current="page" href="controladores/cerrarSesion.php">Salir</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
 <body>
 <div class="container mt-5">
     <h2>Reportes</h2>

@@ -35,6 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['Eliminar_requerimiento
                     <a href="ClientesPC.php">Clientes</a>
                     <a href="Desarrolladores.php">Desarrolladores</a>
                     <a href="Requerimientos.php" id="nav-Reque">Requerimientos</a>
+                    <a href="reportes.php">Reportes</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
